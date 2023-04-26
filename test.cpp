@@ -7,7 +7,18 @@
 using namespace std; 
 
 
-void read_record2()
+void read_record(); 
+void create_rating(int, float*, vector<string>); 
+
+int main(){
+
+
+    read_record(); 
+    // create(); - inside read_record
+        // will accept the list of avarage marks and names/numbers in old file of students
+}
+
+void read_record()
 {
     // File pointer
     fstream fin;
@@ -25,12 +36,16 @@ void read_record2()
     getline(fin, c); 
     cout << c << endl; 
     int students_number = stoi(c); 
+    int bdgt_student_count = 0;
+
     float* average_list = new float[students_number];
+
 
     // Read the Data from the file
     // as String Vector
     vector<string> record;
-    string line, word, temp;
+    vector<string> names;
+    string line, word;
   
     while (getline(fin, line)) {
         
@@ -53,27 +68,53 @@ void read_record2()
         // * making lowercase all 
         float average = 0; 
         if (record[budgetvalue] == "TRUE" || record[budgetvalue] == "true"){
+            names.push_back(record[0]); 
+            
+
             for (int i = 1; i < budgetvalue; i++){
                 average += stof(record[i]); 
             }
             average /=  budgetvalue - 1;
+
+            average_list[bdgt_student_count] = average; 
+            bdgt_student_count++;
         }
         cout << average << endl; 
         cout << count << endl; 
-        average_list[count-1] = average; 
+        
        
-  
     }
-     for(int i =0; i < students_number; i++){
+    for(int i =0; i < students_number; i++){
             cout << "av "<< (average_list[i]) <<endl; 
     }
+    for(int i =0; i < bdgt_student_count; i++){
+           cout << "st "<< (names[i]) <<endl; 
+    }
 
+
+    fin.close(); 
+
+    create_rating(bdgt_student_count, average_list, names); 
 }
 
-int main(){
+void create_rating(int st_count, float* grade, vector<string> st_names){
+    fstream fout;
+    try
+    {
+        fout.open("rating.csv", ios::out);
+    }
+    catch(const std::exception& e)
+    {
+        // std::cerr << e.what() << "Error when opening the file"<<'\n';
+        cout <<  "Error when opening the file"<< endl;
+    }
+    fout << st_count << "\n";
+
+    for(int i = 0; i < st_count; i++){
+        fout << st_names[i] << "," << grade[i]<<"\n";
+    }
 
 
-    read_record2(); 
-    // create(); - inside read_record2 probably,
-        // will accept the list of avarage marks and names/numbers in old file of students
+    
+    fout.close(); 
 }
