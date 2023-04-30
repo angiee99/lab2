@@ -4,16 +4,19 @@
 #include <vector>
 #include <string>
 #include <dirent.h>
-#include "student.cpp"
+#include "student.h"
 
 using namespace std; 
 
-void read_record(vector<string> files,  const char* initial_path); 
-void create_rating(int, vector<float>, vector<string>); 
+
 vector<string> dir_reader(const char*);
 
 void read_record2(vector<string> files, const char* initial_path);
 Student create_student(vector<string>); 
+void sort_students(vector<Student> &);
+void create_rating2(vector<Student> &);
+void write_rating_to_file(vector<Student> &, int); // also could be passing the name of the file
+                                        // could be like the initial_path + directory
 
 int main(){
 
@@ -35,11 +38,12 @@ Student create_student(vector<string> data){
   
     int contractValueInd = data.size() - 1; 
     int grades_count = contractValueInd - 1; 
+    // cout<< "grades_count: " << grades_count << endl; 
 
     vector<float> grades_list;
     bool isOnContract; 
 
-    for(int i = 1 ; i < grades_count ; i++){
+    for(int i = 1 ; i < grades_count + 1; i++){
         try{
             grades_list.push_back(stof(data[i]));
         }
@@ -59,7 +63,6 @@ Student create_student(vector<string> data){
     else{
         throw invalid_argument("The last value in a file row shoudl be either TRUE or FALSE");
     }
-    
     
     
     Student st1(data[0], grades_list, isOnContract);
@@ -82,21 +85,17 @@ void read_record2(vector<string> files, const char* initial_path)
     {
         string filename = initial_path + files[i]; 
         cout << filename << endl;
-
         fstream fin;
-    
+
         try
         {
-            fin.open("1.csv", ios::in);
+            fin.open(filename, ios::in);
         }
         catch(const std::exception& e)
         {
             // std::cerr << e.what() << "Error when opening the file"<<'\n';
             cout <<  "Error when opening the file" << endl;
         }
-
-        // int value_ind, count = 0;
-        int contractValueInd = 6; //!!!!!!!!!!!!!!!!!!could be different
         
         string c;
         getline(fin, c); 
@@ -115,7 +114,7 @@ void read_record2(vector<string> files, const char* initial_path)
             // index of student record in input file
             count++; // !!!
             stringstream s(line);
-            cout << line << endl; 
+            // cout << line << endl; 
     
             // read every column data of a row and store it in a string variable, 'word'
             while (getline(s, word, ',')) {
@@ -131,165 +130,80 @@ void read_record2(vector<string> files, const char* initial_path)
             }
             
         }
-        for(int i = 0; i < count; i++ ){
-            cout << student_list[i].getName() << " " << student_list[i].getAvarage() << endl; 
-        }
+        
         fin.close(); 
-
+    
     }
-    //create_rating(bdgt_student_count, average_list, names); 
+  
+    sort_students(student_list); 
+    create_rating2(student_list); 
+    // write_rating_to_file(student_list, int);
 
-    // delete[] average_list;
+    
+    for(int i = 0; i < count; i++ ){
+            cout << student_list[i].getName() << " " << student_list[i].getAvarage() << endl; 
+    }
     
 }
+void sort_students(vector<Student> &st_list){
+    int count = st_list.size(); 
+    cout << count<< endl; 
+    int countOnBudget = 0; 
 
+    // !! merge sort
+    for (int i = 0; i < count; i++){
+        for (int j = 0; j < count; j++){
+            if(st_list[i].getAvarage() > st_list[j].getAvarage()){
+                swap(st_list[i], st_list[j]);
+            }
+        }
+    }
 
+    cout << st_list[0].getName() << endl;
+
+}
+void create_rating2(vector<Student> &st_list){
+
+    int count = st_list.size();
+    int countOnBudget = 0, countForScholarship = 0; 
+    int percentForScholarship = 40; // so it could possibly be changed later 
+
+    for(int i = 0; i < count; i++){
+        if(!st_list[i].isOnContract()) {
+            countOnBudget++;
+        }
+        else break; // because students are sorted in that way, that all on contract are at the end
+    }
+    cout << countOnBudget << endl; 
+    countForScholarship = countOnBudget * percentForScholarship / 100; 
+    cout << countForScholarship << endl; 
+   
+    write_rating_to_file(st_list, countForScholarship);
+
+}
+void write_rating_to_file(vector<Student> &st_list, int st_count){
+    fstream fout;
+    // !!! mb dont need to check if was opened before, just go with ios::app mode ?
+    try
+    {
+        fout.open("rating1.csv", ios::app);
+    }
+    catch(const std::exception& e)
+    {
+        // std::cerr << e.what() << "Error when opening the file"<<'\n';
+        cout <<  "Error when opening the file"<< endl;
+    }
+
+    for (int i = 0; i < st_count; i++){
+        fout << st_list[i].getName() << "," << st_list[i].getAvarage() << endl; 
+    }
+
+    fout.close();
+   
+}
 
 //update try catch with proper cerr
-void read_record(vector<string> files, const char* initial_path)
-{   
-    // float* average_list = new float[80];
-    vector<float> average_list;
-    vector<string> names;
-    int bdgt_student_count = 0;
 
-    for(int i = 0; i < files.size(); i++)
-    {
-        string filename = initial_path + files[i]; 
-        cout << filename << endl;
-
-        fstream fin;
-    
-        try
-        {
-            fin.open(filename, ios::in);
-        }
-        catch(const std::exception& e)
-        {
-            // std::cerr << e.what() << "Error when opening the file"<<'\n';
-            cout <<  "Error when opening the file" << endl;
-        }
-
-        int value_ind, count = 0;
-        int contractValueInd = 6; //!!!!!!!!!!!!!!!!!!could be different
-        
-        string c;
-        getline(fin, c); 
-        cout << c << endl; 
-        int students_number = stoi(c); 
-        // int bdgt_student_count = 0;
-
-        // Read the Data from the file as String Vector
-        vector<string> record; 
-        // vector<string> names;
-        string line, word;
-    
-        while (getline(fin, line)) {
-            
-            record.clear();
-            // index of student record in input file
-            count++; // !!!
-            stringstream s(line);
-            cout << line << endl; 
-    
-            // read every column data of a row and store it in a string variable, 'word'
-            while (getline(s, word, ',')) {
-                // could count here how many 'columns' a table would have
-
-                record.push_back(word);
-            }
-
-    
-
-            contractValueInd = record.size()-1;
-            cout << contractValueInd << endl; 
-
-            // * making lowercase all 
-            float average = 0; 
-            if (record[contractValueInd] == "FALSE" || record[contractValueInd] == "false"){
-                names.push_back(record[0]); 
-                
-                for (int i = 1; i < contractValueInd; i++){
-                    average += stof(record[i]); 
-                }
-                average /=  contractValueInd - 1;
-                // average_list[bdgt_student_count] = average; 
-                
-                average_list.push_back(average);
-                bdgt_student_count++;
-            }
-
-            // cout << average << endl; 
-            // cout << count << endl; 
-            
-        }
-
-        // for(int i =0; i < students_number; i++){
-        //         cout << "av "<< (average_list[i]) <<endl; 
-        // }
-        // for(int i =0; i < bdgt_student_count; i++){
-        //     cout << "st "<< (names[i]) <<endl; 
-        // }
-
-        fin.close(); 
-
-    }
-    create_rating(bdgt_student_count, average_list, names); 
-
-    // delete[] average_list;
-    
-}
-
-void create_rating(int st_count, vector<float> grade, vector<string> st_names){
-    fstream fout;
-
-    fout.open("rating3.csv", ios::in);
-    if (fout){
-        try
-        {
-            fout.open("rating3.csv", ios::app);
-            //fout.open("rating.csv", ios::app); // here the probl with the first record
-                // with st_count 
-        }
-        catch(const std::exception& e)
-        {
-            // std::cerr << e.what() << "Error when opening the file"<<'\n';
-            cout <<  "Error when opening the file"<< endl;
-        }
-    }
-    else{
-        try
-        {
-            fout.open("rating3.csv", ios::out);
-        }
-        catch(const std::exception& e)
-        {
-            // std::cerr << e.what() << "Error when opening the file"<<'\n';
-            cout <<  "Error when opening the file"<< endl;
-        }
-    }
-    
-    // sorting students
-    for(int i = 0; i < st_names.size(); i++){
-        for (int j = 0; j < st_names.size(); j++){
-            if(grade[i] > grade[j]){
-                swap(grade[i], grade[j]);
-                swap(st_names[i], st_names[j]);
-            }
-        }
-    }
-    // fout << st_count << "\n";
-
-    for(int i = 0; i < st_names.size(); i++){
-        fout << st_names[i] << "," << grade[i]<<"\n";
-    }
-    
-    fout.close(); 
-}
-
-
-// count 40% of budget students and extracting the minimal mark 
-// checking if name is void 
 vector<string> dir_reader(const char* dirname){
     vector<string> filenames;
     DIR* dir = opendir(dirname); 
