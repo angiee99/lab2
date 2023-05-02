@@ -1,14 +1,7 @@
 #include "student.h"
 
  
-void Student::countAverageGrade(){
 
-    for(int i = 0; i < _grades.size(); i++){
-        _average += _grades[i];
-    }
-    _average /= _grades.size(); 
-
-}
 
 Student::Student(std::string name, std::vector<float> grades, bool oncontract) {
     _name = name; 
@@ -47,4 +40,12 @@ float Student::getAvarage(){
         countAverageGrade();
     }
     return _average;
+}
+void Student::countAverageGrade(){
+
+    for(int i = 0; i < _grades.size(); i++){
+        _average += _grades[i];
+    }
+    _average /= _grades.size(); 
+
 }
