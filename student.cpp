@@ -1,8 +1,5 @@
 #include "student.h"
 
- 
-
-
 Student::Student(std::string name, std::vector<float> grades, bool oncontract) {
     _name = name; 
     _onContract = oncontract;

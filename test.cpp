@@ -6,30 +6,37 @@
 
 #include <vector>
 #include <string>
+#include <cerrno>
 
 #include <dirent.h>
 
 #include "student.h"
+#include "studentList.h"
 
 using namespace std; 
 
 vector<string> dir_reader(const char*);
-void read_record2(vector<string> files);
+void read_record(vector<string> files);
 
 Student* create_student(vector<string>); 
 void sort_students(vector<Student*> &);
-void create_rating2(vector<Student*> &);
+void create_rating(vector<Student*> &);
 void write_rating_to_file(vector<Student*> &, int); // also could be passing the name of the file
                                         // could be like the initial_path + directory
 
 int main(){
+    try{
+        const char* dirname = "/Users/angelina/Desktop/students/";  
+        read_record(dir_reader(dirname)); 
 
-    const char* dirname = "/Users/angelina/Desktop/students/";  
-    // vector<string> filenames;
-    // filenames = dir_reader(dirname);
-
-    read_record2(dir_reader(dirname)); 
-    
+    }
+    catch(invalid_argument& e){
+        //cout << "Invalid argument exception" << endl; 
+        cerr << e.what() << endl; 
+    }
+    catch(runtime_error& e){
+        cerr << e.what() << endl; 
+    }
     // create_student();
 }
 
@@ -38,7 +45,8 @@ int main(){
 Student* create_student(vector<string> data){
 
     if(data[0].empty() || data[0] == " "){
-        throw invalid_argument("The first record in a table row should be the name of a student, not an empty string.");
+        string msg = "The first record in a table row (here: "+ data[0] + ")should be the name of a student, not an empty string."; 
+        throw invalid_argument(msg);
     }
   
     int contractValueInd = data.size() - 1; 
@@ -49,13 +57,14 @@ Student* create_student(vector<string> data){
     bool isOnContract; 
 
     for(int i = 1 ; i < grades_count + 1; i++){
-        try{
-            grades_list.push_back(stof(data[i]));
+        
+        grades_list.push_back(stof(data[i]));
+        if(errno ==  ERANGE){
+            string msg = "Error when transforming file content to float numbers"; 
+            throw runtime_error(msg); 
         }
-        catch(std::invalid_argument& e){
-            cerr << e.what()<<endl;
-            std::cout << "Error when transforming file content to float numbers" << endl; 
-        }
+        
+
     }
 
     if(data[contractValueInd] == "FALSE" || data[contractValueInd] == "fasle"){
@@ -76,31 +85,27 @@ Student* create_student(vector<string> data){
     return st1; 
 }
 
-void read_record2(vector<string> files)
+//StudentList
+void read_record(vector<string> files)
 {   
-    vector<Student*> student_list; 
-
+    StudentList student_list; 
     // float* average_list = new float[80];
-    vector<float> average_list;
-    vector<string> names;
+    //vector<float> average_list;
+    //vector<string> names;
     int bdgt_student_count = 0;
     int count = 0; 
 
     for(int i = 0; i < files.size(); i++)
     {
         // cout << files[i] << endl;
-        fstream fin;
-
-        try
-        {
-            fin.open(files[i], ios::in);
-        }
-        catch(const std::exception& e)
-        {
-            // std::cerr << e.what() << "Error when opening the file"<<'\n';
-            cout <<  "Error when opening the file" << endl;
-        }
+        ifstream fin;
+        fin.open(files[i], ios::in);
         
+        if(!fin.is_open()){
+            string msg = "Failed to open input file" + files[i]; 
+            throw runtime_error(msg);
+        }
+    
         string c;
         getline(fin, c); 
         // cout << c << endl; 
@@ -109,7 +114,6 @@ void read_record2(vector<string> files)
 
         // Read the Data from the file as String Vector
         vector<string> record; 
-        // vector<string> names;
         string line, word;
     
         while (getline(fin, line)) {
@@ -126,32 +130,36 @@ void read_record2(vector<string> files)
                 record.push_back(word);
             }
 
-            try{
-                student_list.push_back(create_student(record));
-            } 
-            catch (const std::exception& e){
-                cout << e.what() << endl; 
-            }
             
+            student_list.add(create_student(record));
         }
         
         fin.close(); 
     
     }
-  
-    sort_students(student_list); 
-    create_rating2(student_list); 
+    int scholarshipPercent = 40; 
+    student_list.sort();
+    student_list.createRating(scholarshipPercent, "rating.csv");
+    // sort_students(student_list); 
+    // create_rating(student_list); 
     // write_rating_to_file(student_list, int);
 
-    for(int i = 0; i < count; i++ ){
-            cout << student_list[i]->getName() << " " << student_list[i]->getAvarage() << endl; 
-    }
+    // for(int i = 0; i < count; i++ ){
+    //         cout << student_list[i]->getName() << " " << student_list[i]->getAvarage() << endl; 
+    // }
+
+    // for (vector<Student*>::iterator pObj = student_list.begin();
+    //     pObj != student_list.end(); ++pObj) {
+    //     delete *pObj; // Note that this is deleting what pObj points to,
+    //                 // which is a pointer
+    // }
     
 }
+
+//-
 void sort_students(vector<Student*> &st_list){
     int count = st_list.size(); 
-    cout << count<< endl; 
-    int countOnBudget = 0; 
+    //cout << count<< endl; 
 
     // !! merge sort
     for (int i = 0; i < count; i++){
@@ -162,10 +170,11 @@ void sort_students(vector<Student*> &st_list){
         }
     }
 
-    cout << st_list[0]->getName() << endl;
+    //cout << st_list[0]->getName() << endl;
 
 }
-void create_rating2(vector<Student*> &st_list){
+//-
+void create_rating(vector<Student*> &st_list){
 
     int count = st_list.size();
     int countOnBudget = 0, countForScholarship = 0; 
@@ -177,26 +186,23 @@ void create_rating2(vector<Student*> &st_list){
         }
         else break; // because students are sorted in that way, that all on contract are at the end
     }
-    cout << countOnBudget << endl; 
+    // cout << countOnBudget << endl; 
     countForScholarship = countOnBudget * percentForScholarship / 100; 
-    cout << countForScholarship << endl; 
+    // cout << countForScholarship << endl; 
    
     write_rating_to_file(st_list, countForScholarship);
-
 }
+//-
 void write_rating_to_file(vector<Student*> &st_list, int st_count){
     fstream fout;
+    string filename = "rating10.csv"; 
     // !!! mb dont need to check if was opened before, just go with ios::app mode ?
-    try
-    {
-        fout.open("rating10.csv", ios::app);
+    fout.open(filename, ios::app);
+    if(!fout.is_open()){
+        string msg = "Failed to open output file" + filename; 
+        throw runtime_error(msg);
     }
-    catch(const std::exception& e)
-    {
-        // std::cerr << e.what() << "Error when opening the file"<<'\n';
-        cout <<  "Error when opening the file"<< endl;
-    }
-
+    
     for (int i = 0; i < st_count; i++){
         fout << st_list[i]->getName() << "," << fixed << setprecision(3) << st_list[i]->getAvarage() << endl; 
     }
@@ -205,14 +211,14 @@ void write_rating_to_file(vector<Student*> &st_list, int st_count){
    
 }
 
-//update try catch with proper cerr
 
 vector<string> dir_reader(const char* dirname){
     vector<string> filenames;
     DIR* dir = opendir(dirname); 
     if(dir == NULL){
+        string msg = "Error opening the directory"; 
         cout<< "An empty directory "<< dirname <<  endl; 
-        // throw 
+        throw runtime_error(msg); 
     }
     else{
         struct dirent* inside_dir; 
@@ -234,7 +240,6 @@ vector<string> dir_reader(const char* dirname){
             }
             
             inside_dir = readdir(dir);
-            
         }
     }
     closedir(dir);
