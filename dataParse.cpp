@@ -1,5 +1,5 @@
 #include "dataParse.h"
-// includes validation
+
 vector<string> dir_reader(const char *dirname){
     vector<string> filenames;
     DIR* dir = opendir(dirname); 
@@ -79,7 +79,7 @@ void read_record(vector<string> files,  StudentList *student_list)
         fin.close(); 
     }
 }
-
+// includes validation
 Student *create_student(vector<string> data){
 
     if(data[0].empty() || data[0] == " "){
@@ -98,7 +98,7 @@ Student *create_student(vector<string> data){
         
         grades_list.push_back(stof(data[i]));
         if(errno ==  ERANGE){
-            string msg = "Error when transforming file content to float number at column " + to_string(i); 
+            string msg = "Error when transforming file content to float number at column " + to_string(i) + " at student " + data[0]; 
             throw runtime_error(msg); 
         }
 
@@ -111,7 +111,7 @@ Student *create_student(vector<string> data){
         isOnContract = true; 
     }
     else{
-        throw invalid_argument("The last value in a file row shoudl be either TRUE or FALSE");
+        throw invalid_argument("The last value in a file row shoudl be either TRUE or FALSE\nError occured at row with student " + data[0]);
     }
     
     Student *st1 = new Student(data[0], grades_list, isOnContract);

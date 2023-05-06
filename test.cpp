@@ -12,7 +12,8 @@ int main(int argc, char *argv[]){
     
     try{
         if(argc != 2){
-            throw invalid_argument("The command argument should include 2 arguments: \n-the name of the program \n-the directory name"); 
+            cerr << "The command argument should include 2 arguments: \n-the name of the program \n-the directory name" << endl; 
+            return 1;       
         }
         const char *dirname = argv[1]; 
         // const char* dirname = "/Users/angelina/Desktop/students/";  
