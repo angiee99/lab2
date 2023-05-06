@@ -51,7 +51,6 @@ void StudentList::sort(){
         _isSorted = true;
     }
 
-       
 };
 
 void StudentList::createRating(int scholarshipPercent){
@@ -85,9 +84,9 @@ void StudentList::createRating(int scholarshipPercent, std::string filename){
 void StudentList::writeRatingToFile(std::string filename){
     std::fstream fout;
     // string filename = "rating10.csv"; 
-    fout.open(filename, std::ios::app);
+    fout.open(filename, std::ios::out);
     if(!fout.is_open()){
-        std::string msg = "Failed to open output file" + filename; 
+        std::string msg = "Failed to open output file " + filename; 
         throw std::runtime_error(msg);
     }
     
