@@ -9,7 +9,11 @@
 using namespace std; 
 
 int main(int argc, char *argv[]){
+    
     try{
+        if(argc != 2){
+            throw invalid_argument("The command argument should include 2 arguments: \n-the name of the program \n-the directory name"); 
+        }
         const char *dirname = argv[1]; 
         // const char* dirname = "/Users/angelina/Desktop/students/";  
         
@@ -25,19 +29,19 @@ int main(int argc, char *argv[]){
     }
     catch(invalid_argument &e){
         //cout << "Invalid argument exception" << endl; 
-        cerr << e.what() << endl; 
+        cerr << "Exception invalid_argument:\n" << e.what() << endl; 
     }
     catch(length_error &e){
-        cerr << e.what() << endl; 
+        cerr << "Exception length_error:\n" << e.what() << endl; 
     }
     catch(out_of_range &e){
-        cerr << e.what() << endl; 
+        cerr << "Exception out_of_range:\n" << e.what() << endl; 
     }
     catch(runtime_error &e){
-        cerr << e.what() << endl; 
+        cerr << "Exception runtime_error:\n" << e.what() << endl; 
     }
     catch(exception &e){
-        cerr << e.what() << endl; 
+        cerr << "Default exception occured:\n" << e.what() << endl; 
     }
 
 }

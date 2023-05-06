@@ -5,7 +5,7 @@ vector<string> dir_reader(const char *dirname){
     DIR* dir = opendir(dirname); 
     if(dir == NULL){
         string msg = "Error opening the directory"; 
-        cout<< "An empty directory "<< dirname <<  endl; 
+        cerr << "An empty directory "<< dirname <<  endl; 
         throw runtime_error(msg); 
     }
     else{
