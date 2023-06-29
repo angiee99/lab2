@@ -2,7 +2,6 @@
 #include <iomanip>
 #include <stdio.h>
 
-// #include "student.h"
 #include "studentList.h"
 #include "dataParse.h"
 
@@ -15,8 +14,7 @@ int main(int argc, char *argv[]){
             cerr << "The command argument should include 2 arguments: \n-the name of the program \n-the directory name" << endl; 
             return 1;       
         }
-        const char *dirname = argv[1]; 
-        // const char* dirname = "/Users/angelina/Desktop/students/";  
+        const char *dirname = argv[1];  
         
         StudentList *student_list = new StudentList; 
         read_record(dir_reader(dirname), student_list); 
@@ -29,7 +27,6 @@ int main(int argc, char *argv[]){
 
     }
     catch(invalid_argument &e){
-        //cout << "Invalid argument exception" << endl; 
         cerr << "Exception invalid_argument:\n" << e.what() << endl; 
     }
     catch(length_error &e){

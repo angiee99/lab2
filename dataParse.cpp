@@ -23,11 +23,9 @@ vector<string> dir_reader(const char *dirname){
             if(inside_dir->d_type == DT_REG && strcmp(inside_dir->d_name, ".DS_Store")!= 0){
             
                 filenames.push_back(full_path);
-                //cout << inside_dir->d_name << endl; 
             }
             if(inside_dir->d_type == DT_DIR && strcmp(inside_dir->d_name, ".")!= 0  && strcmp(inside_dir->d_name, "..")!= 0){
                 dir_reader(full_path); 
-                // cout << inside_dir->d_name << endl;
             }
             
             inside_dir = readdir(dir);
@@ -61,7 +59,6 @@ void read_record(vector<string> files,  StudentList *student_list)
             count++; 
             record.clear();
             stringstream s(line);
-            // cout << line << endl; 
 
             // read every column data of a row and store it in a string variable, 'word'
             while (getline(s, word, ',')) {
@@ -89,7 +86,6 @@ Student *create_student(vector<string> data){
   
     int contractValueInd = data.size() - 1; 
     int grades_count = contractValueInd - 1; 
-    // cout<< "grades_count: " << grades_count << endl; 
 
     vector<float> grades_list;
     bool isOnContract; 
@@ -115,8 +111,6 @@ Student *create_student(vector<string> data){
     }
     
     Student *st1 = new Student(data[0], grades_list, isOnContract);
-    // cout << grades_list.size() << endl;
-    // cout<< st1.getAvarage() << endl;
 
     return st1; 
 }

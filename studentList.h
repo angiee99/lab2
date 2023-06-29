@@ -5,7 +5,6 @@
 #include <string>
 #include "student.h"
 
-// using namespace std;
 class StudentList{
    std::vector<Student*> _student_list;
    int _size; 
@@ -18,7 +17,6 @@ protected:
 public: 
    StudentList();
    StudentList(std::vector<Student*>);
-   //copy cnstrctor 
    ~StudentList();
 
    void add(Student*); 

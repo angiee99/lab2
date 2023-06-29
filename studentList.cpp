@@ -58,17 +58,7 @@ void StudentList::createRating(int scholarshipPercent){
     if(!_isSorted){
         sort(); 
     }
-    // for(int i = 0; i < _size; i++){
-    //     if(!_student_list[i]->isOnContract()) {
-    //         countOnBudget++;
-    //     }
-    //     else break; // because students are sorted in that way, that all on contract are at the end
-    // }
-    //std::cout << _budgetStCount << std::endl; 
     _scolarshipStCount = _budgetStCount * _scolarshipPercent / 100; 
-    // cout << countForScholarship << endl; 
-   
-    //write_rating_to_file(countForScholarship);
 };
 void StudentList::createRating(int scholarshipPercent, std::string filename){
     _scolarshipPercent = scholarshipPercent;
@@ -76,14 +66,12 @@ void StudentList::createRating(int scholarshipPercent, std::string filename){
         sort(); 
     }
     _scolarshipStCount = _budgetStCount * _scolarshipPercent / 100; 
-    // cout << _scolarshipStCount << endl; 
    
     writeRatingToFile(filename);
 };
 
 void StudentList::writeRatingToFile(std::string filename){
     std::fstream fout;
-    // string filename = "rating10.csv"; 
     fout.open(filename, std::ios::out);
     if(!fout.is_open()){
         std::string msg = "Failed to open output file " + filename; 

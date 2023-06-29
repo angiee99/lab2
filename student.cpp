@@ -6,11 +6,6 @@ Student::Student(std::string name, std::vector<float> grades, bool oncontract) {
     _grades = grades; 
     _average = 0;
        
-        // with argument gradesCount; 
-        // int* _grades = new int[2*countOfGrades]; //2*countOfGrades just for additional space for now
-        // for(int i = 0; i < countOfGrades; i++){
-        //     _grades[i] = grades[i]; 
-        // }
 }
 
 Student::Student(Student &another){
